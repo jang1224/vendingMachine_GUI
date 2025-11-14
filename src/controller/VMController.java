@@ -1,8 +1,8 @@
-package Controller;
+package controller;
 import javax.swing.*;
 
-import Model.*;
-import View.*;
+import model.*;
+import view.*;
 
 import java.awt.*;
 import java.util.ArrayList;

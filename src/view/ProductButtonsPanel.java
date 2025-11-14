@@ -1,6 +1,6 @@
-package View;
-import Controller.*;
-import Model.AccountManager;
+package view;
+import controller.*;
+import model.AccountManager;
 
 import javax.swing.*;
 import java.awt.*;

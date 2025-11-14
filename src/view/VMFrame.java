@@ -1,9 +1,8 @@
-package View;
-import Controller.VMController;
-import Model.*;
+package view;
+import controller.VMController;
+import model.*;
 import java.awt.*;
 import javax.swing.*;
-import javax.swing.border.*;
 
 public class VMFrame extends JFrame{
     private final ProductButtonsPanel productButtonPanel;

@@ -1,8 +1,8 @@
-package View;
-import Model.*;
+package view;
+import model.*;
 import javax.swing.*;
 import java.awt.*;
-import Controller.*;
+import controller.*;
 
 public class InputPanel extends JPanel{
     private final JLabel currentBalanceLabel = new JLabel();
