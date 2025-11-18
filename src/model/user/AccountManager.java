@@ -1,6 +1,7 @@
-package model;
+package model.user;
 
 public class AccountManager {
+    private boolean isCard = false;
     private int currentBalance = 0;
     public void insertCoinOrCash(int amount){ // 동전이나 현금 투입
         this.currentBalance += amount;
@@ -15,5 +16,11 @@ public class AccountManager {
         int change = this.currentBalance;
         this.currentBalance = 0;
         return change;
+    }
+    public boolean getIsCard(){
+        return isCard;
+    }
+    public void setIsCard(boolean isCard){
+        this.isCard = isCard;
     }
 }

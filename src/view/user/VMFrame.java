@@ -1,6 +1,9 @@
-package view;
-import controller.VMController;
+package view.user;
+import controller.user.VMController;
 import model.*;
+import model.user.AccountManager;
+
+
 import java.awt.*;
 import javax.swing.*;
 
@@ -9,14 +12,13 @@ public class VMFrame extends JFrame{
     private final DisplayPanel displayPanel;
     private final InputPanel inputPanel;
 
-    public VMFrame(VMController controller){
-        AccountManager currentBalance = new AccountManager();
+    public VMFrame(AccountManager currentBalance){
         displayPanel = new DisplayPanel();
-        inputPanel = new InputPanel(controller, currentBalance, displayPanel);
-        productButtonPanel = new ProductButtonsPanel(controller, currentBalance, inputPanel, displayPanel);
+        inputPanel = new InputPanel(currentBalance, displayPanel);
+        productButtonPanel = new ProductButtonsPanel();
         setTitle("자판기");
         setDefaultCloseOperation(EXIT_ON_CLOSE); // 프레임 윈도우를 닫으면 프로그램을 종료하도록 설정
-        setDimension(1100,800);
+        setDimension(1600,900);
 //        setResizable(false);    // 창 크기 고정하기
         setBackground(Color.GRAY);
 
@@ -28,7 +30,7 @@ public class VMFrame extends JFrame{
         gbc.gridy = 0;
         gbc.weighty = 1.0;
         // 상품버튼 패널 추가
-        gbc.weightx = 0.45;
+        gbc.weightx = 0.50;
         gbc.gridx = 0;
         add(productButtonPanel,gbc);
         // 디스플레이 패널 추가
@@ -45,8 +47,8 @@ public class VMFrame extends JFrame{
 
     }
     public void setDimension(int width, int height){
-        int productWidth = (int)(width * 0.45);
-        int inputWidth   = (int)(width * 0.25);
+        int productWidth = (int)(width * 0.50);
+        int inputWidth   = (int)(width * 0.20);
         int displayWidth = (int)(width * 0.30);
         setSize(width, height);
         productButtonPanel.setPreferredSize(new Dimension(productWidth, height));
@@ -62,8 +64,21 @@ public class VMFrame extends JFrame{
         displayPanel.setMinimumSize(new Dimension(displayWidth, height));
     }
 
-    public static void main(String[] args) {
-        Inventory product = new Inventory();
-        VMFrame vm = new VMFrame(new VMController(new VMProcessor(product), product));
+    public ProductButtonsPanel getProductButtonsPanel() {
+        return productButtonPanel;
+    }
+
+    public DisplayPanel getDisplayPanel() {
+        return displayPanel;
+    }
+
+    public InputPanel getInputPanel() {
+        return inputPanel;
+    }
+    public void setVMController(VMController controller){
+
+        displayPanel.setController(controller);
+        inputPanel.setController(controller);
+        productButtonPanel.setController(controller);
     }
 }
