@@ -9,22 +9,26 @@ public class DisplayPanel extends JPanel{
     private final JPanel messagePanel;
     private final JScrollPane scrollPane;
     private boolean firstMessage = true;
-    private VMController controller;
     public DisplayPanel(){
         JPanel topPanel = new JPanel();
         setLayout(new BorderLayout(0, 10));
-
         messagePanel = new JPanel();
+        int paddingHeight = 25;
         // Panel 설정
         PanelDesigner.designPanel(this);
         messagePanel.setOpaque(true);   // 배경색 보이게 설정
         messagePanel.setBackground(Color.DARK_GRAY);
-        messagePanel.setBorder(BorderFactory.createLineBorder(Color.GRAY,3));
+        messagePanel.setBorder(BorderFactory.createLineBorder(Color.GRAY,3));messagePanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Color.GRAY, 3), // 기존 테두리 유지
+                BorderFactory.createEmptyBorder(0, 0, paddingHeight, 0) //  하단에만 여백 추가
+        ));
         // 초기화면
         messagePanel.setLayout(new BoxLayout(messagePanel, BoxLayout.Y_AXIS));
         JLabel startMessage = new JLabel("안녕하십니까, 간식과 음료 자판기입니다.", JLabel.CENTER);
+        startMessage.setAlignmentX(Component.CENTER_ALIGNMENT);
+        startMessage.setFont(new Font("맑은 고딕", Font.PLAIN,20));
         startMessage.setForeground(Color.white);    // 글자 색
-        messagePanel.add(startMessage, BorderLayout.CENTER);
+        messagePanel.add(startMessage);
 
 
         // 스크롤
@@ -62,14 +66,16 @@ public class DisplayPanel extends JPanel{
         label.setAlignmentX(Component.CENTER_ALIGNMENT);
         label.setFont(new Font("맑은 고딕", Font.PLAIN, ButtonDesigner.fontSize));
         label.setForeground(Color.white);
-        // 새 메시지 추가 시 자동으로 맨 아래로 스크롤
-        SwingUtilities.invokeLater(() ->
-                scrollPane.getVerticalScrollBar().setValue(
-                        scrollPane.getVerticalScrollBar().getMaximum()
-                )
-        );
         this.messagePanel.add(label);
-        this.messagePanel.revalidate(); // 새로 추가된 컴포넌트에 맞춰 레이아웃 다시 계산
-        this.messagePanel.repaint(); // 화면 다시 그림
+        // 새 메시지 추가 시 자동으로 맨 아래로 스크롤
+        SwingUtilities.invokeLater(() -> {
+            this.messagePanel.revalidate(); // 새로 추가된 컴포넌트에 맞춰 레이아웃 다시 계산
+            this.messagePanel.repaint(); // 화면 다시 그림
+            scrollPane.getVerticalScrollBar().setValue(
+                    scrollPane.getVerticalScrollBar().getMaximum()
+            );
+        });
+
+
     }
 }
