@@ -1,5 +1,3 @@
-package controller;
-
 import controller.admin.AdminController;
 import controller.user.VMController;
 import model.Inventory;
@@ -9,10 +7,9 @@ import view.user.*;
 
 public class MainEx {
     public static void main(String[] args) {
-        Inventory inventory = new Inventory();
-        VMProcessor vmProcessor = new VMProcessor(inventory);
+        Inventory inventory = new Inventory();  // 인벤토리 객체 생성
+        VMProcessor vmProcessor = new VMProcessor(inventory);   // vmProcessor 객체 생성
         AccountManager accountManager = new AccountManager();
-
         AdminController adminController = new AdminController(inventory);
 
         VMFrame frame = new VMFrame(accountManager);

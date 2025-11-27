@@ -7,6 +7,17 @@ import java.awt.event.MouseEvent;
 
 public class ButtonDesigner {
     static public final int fontSize = 12;
+
+    // 색상 정의
+    private static final Color COLOR_ON_HOVER = new Color(180, 180, 180); // 마우스 올렸을 때 (진한 회색)
+    private static final Color COLOR_NORMAL = new Color(210, 210, 210);   // 평소 (밝은 회색)
+    private static final Color TEXT_GREEN = new Color(0, 150, 0);         // 구매 가능 글자색
+    private static final Color TEXT_BLACK = Color.BLACK;                  // 기본 글자색
+
+    // 테두리 색상은 고정 (흔들림 방지)
+    private static final Color BORDER_HIGHLIGHT = new Color(210, 210, 210);
+    private static final Color BORDER_SHADOW = new Color(150, 150, 150);
+
     static public JButton designButton(JButton button, int width, int height){
 
         button.setContentAreaFilled(false);  // 기본 배경 채우기 비활성화
@@ -16,51 +27,81 @@ public class ButtonDesigner {
         button.setFont(new Font("맑은 고딕", Font.BOLD, fontSize));
         button.setForeground(Color.BLACK);
         button.setBackground(new Color(210,210,210));   // lightGray 배경 설정
-        button.setFocusPainted(false);  // 포거스 파란색 테두리 제거
-        button.setOpaque(true); // 배경색이 보이도록
-        button.setBorder(BorderFactory.createBevelBorder(
-                BevelBorder.RAISED,
-                new Color(210,210,210), // 왼쪽 위쪽 밝은 면
-                new Color(150,150,150)  // 오른쪽 아래쪽 어두운 면
-        ));
+
+        // 초기 상태 설정
+        button.putClientProperty("purchasable", false);
+        button.putClientProperty("hovering", false);    // 마우스 올라감 여부
+        updateStyle(button); // 초기 스타일 적용
+
         button.addMouseListener(new MouseAdapter() {    // 마우스 이벤트 리스너 등록
             @Override
             public void mousePressed(MouseEvent e) {
                 if (!button.isEnabled()) return;
-                button.setBorder(BorderFactory.createBevelBorder(   // 테두리가 들어간 모양으로 반전하기
-                        BevelBorder.LOWERED,
-                        new Color(255,255,255),
-                        new Color(120,120,120)
-                ));
-                button.setBackground(new Color(180,180,180));   // 눌림 시 부드러운 파랑으로 색상 설정
-                button.setFont(new Font("맑은 고딕", Font.PLAIN, fontSize));  // 눌림 시 폰트를 살짝 가볍게 해주기
+                button.putClientProperty("pressed", true);
+                updateStyle(button);
             }
             @Override
             public void mouseReleased(MouseEvent e){
                 if (!button.isEnabled()) return;
-                button.setBorder(BorderFactory.createBevelBorder(
-                        BevelBorder.RAISED,
-                        new Color(255, 255, 255),
-                        new Color(150, 150, 150)
-                ));
-                button.setBackground(new Color(180,180,180));
-                button.setFont(new Font("맑은 고딕", Font.BOLD, fontSize));
+                button.putClientProperty("pressed", false);
+                updateStyle(button);
             }
             @Override
             public void mouseEntered(MouseEvent e) {
                 if (!button.isEnabled()) return;
-                //  마우스를 버튼 위로 올렸을 때 (하이라이트)
-                button.setBackground(new Color(180, 180, 180));
+                button.putClientProperty("hovering", true);
+                updateStyle(button);
             }
             @Override
             public void mouseExited(MouseEvent e) {
                 if (!button.isEnabled()) return;
-                //  마우스가 버튼 영역을 벗어났을 때 (기본 상태로 복귀)
-                button.setBackground(new Color(210, 210, 210));
+                button.putClientProperty("hovering", false);
+                updateStyle(button);
             }
         });
         return button;
     }
+
+    // Controller에서 호출하는 메서드
+    static public void setPurchasable(JButton button, boolean isPurchasable) {
+        Boolean current = (Boolean) button.getClientProperty("purchasable");
+        if (current == null || current != isPurchasable) {
+            button.putClientProperty("purchasable", isPurchasable);
+            updateStyle(button);
+        }
+    }
+    // 내부 스타일 업데이트 로직: 테두리 대신 '글자 색'을 변경
+    static private void updateStyle(JButton button) {
+        // 현재 상태 값들 읽어오기
+        boolean isPurchasable = Boolean.TRUE.equals(button.getClientProperty("purchasable"));
+        boolean isHovering = Boolean.TRUE.equals(button.getClientProperty("hovering"));
+        boolean isPressed = Boolean.TRUE.equals(button.getClientProperty("pressed"));
+        // 글자 색상 결정 (구매 가능하면 초록, 아니면 검정)
+        if (isPurchasable) {
+            button.setForeground(TEXT_GREEN);
+        } else {
+            button.setForeground(TEXT_BLACK);
+        }
+
+        // 배경 색상 결정 (눌렸거나 마우스가 위에 있으면 진하게, 아니면 밝게)
+        if (isPressed || isHovering) {
+            button.setBackground(COLOR_ON_HOVER);
+        } else {
+            button.setBackground(COLOR_NORMAL);
+        }
+
+        // 테두리 및 폰트 결정 (눌림 효과)
+        if (isPressed) {
+            button.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, BORDER_HIGHLIGHT, BORDER_SHADOW));
+            button.setFont(new Font("맑은 고딕", Font.PLAIN, fontSize));
+        } else {
+            button.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, BORDER_HIGHLIGHT, BORDER_SHADOW));
+            button.setFont(new Font("맑은 고딕", Font.BOLD, fontSize));
+        }
+        button.revalidate();
+        button.repaint();
+    }
+
     static public JButton designToggleButton(JButton button, int width, int height) {
         // 기본 스타일 적용
         button.setContentAreaFilled(false);
@@ -98,22 +139,12 @@ public class ButtonDesigner {
     }
     static private void applyToggleStyle(JButton button, boolean isOn) {
         if (isOn) {
-            // on 상태
-            button.setBorder(BorderFactory.createBevelBorder(
-                    BevelBorder.LOWERED, // 들어간 모양의 버튼의 테두리
-                    new Color(255, 255, 255),
-                    new Color(120, 120, 120)
-            ));
-            button.setBackground(new Color(180, 180, 180)); // 어두운 배경
+            button.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.WHITE, Color.GRAY));
+            button.setBackground(COLOR_ON_HOVER);
             button.setFont(new Font("맑은 고딕", Font.PLAIN, fontSize));
         } else {
-            // off 상태
-            button.setBorder(BorderFactory.createBevelBorder(
-                    BevelBorder.RAISED, // '나온' 테두리
-                    new Color(210, 210, 210),
-                    new Color(150, 150, 150)
-            ));
-            button.setBackground(new Color(210, 210, 210)); // 밝은 배경
+            button.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, COLOR_NORMAL, Color.GRAY));
+            button.setBackground(COLOR_NORMAL);
             button.setFont(new Font("맑은 고딕", Font.BOLD, fontSize));
         }
     }

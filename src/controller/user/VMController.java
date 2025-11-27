@@ -17,6 +17,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.awt.event.*;
+import java.util.Map;
 import java.util.Objects;
 
 public class VMController implements VMUIRefreshable{
@@ -28,6 +29,8 @@ public class VMController implements VMUIRefreshable{
     private final InputPanel inputPanel;
     private final DisplayPanel displayPanel;
     private final ProductButtonsPanel productButtonsPanel;
+
+    private final Map<Product, JButton> productButtonMap = new HashMap<>(); // 구매가능기능을 위한 해시맵
 
     public VMController(VMProcessor processor,
                         Inventory inventory,
@@ -51,6 +54,8 @@ public class VMController implements VMUIRefreshable{
     public ArrayList<JPanel> initProductButtons() {
         HashMap<String, Product> productMap = inventory.getProductMap();
         ArrayList<JPanel> panelList = new ArrayList<>();
+
+        productButtonMap.clear();
         // 버튼 크기 및 이미지 크기
         int buttonWidth = 140;
         int buttonHeight = 40;
@@ -66,14 +71,15 @@ public class VMController implements VMUIRefreshable{
             JButton button = ButtonDesigner.designButton(new JButton("<html><center>" + value.getName() + "<br/>( " + value.getPrice() + "원 )</center><html>"),buttonWidth,buttonHeight);
             // 버튼에 액션 리스너 추가 -> 이벤트 발생 시에 productSelection 메소드 실행
             button.addActionListener(new ButtonActionListener(value, button, currentBalance, displayPanel, inputPanel));
-            // 실행부터 수량이 0인 상품이 있을 수 있으니.
-            updateProductState(value, button);
+            // 생성된 버튼을 맵에 저장
+            productButtonMap.put(value, button);
             //JPanel 생성
             JPanel productPanel = new JPanel(new BorderLayout());
             productPanel.add(imageLabel, BorderLayout.CENTER);   // 이미지는 버튼 위에
             productPanel.add(button, BorderLayout.SOUTH);    // 버튼은 패널에서 아래쪽에
             panelList.add(productPanel);
         }
+        updateProductState();
         return panelList;
     }
 
@@ -221,18 +227,34 @@ public class VMController implements VMUIRefreshable{
 
 
     // 상품이 0개 이하면 품절로 표시하기
-    private void updateProductState(Product product, JButton button) {
-        if (product.getQuantity() <= 0) {
-            // 버튼 텍스트 품절로 바꾸기
-            button.setText(product.getName() + " (품절)");
-            button.setOpaque(false);
-            button.setEnabled(false);   // 버튼 비활성화하기
-            UIManager.put("Button.disabledText", Color.RED);
-            button.setBorder(BorderFactory.createBevelBorder(
-                    BevelBorder.RAISED,
-                    Color.RED.brighter(),
-                    Color.RED.darker()
-            ));
+    private void updateProductState() {
+        for(Map.Entry<Product, JButton> entry : productButtonMap.entrySet()) {
+            Product product = entry.getKey();
+            JButton button = entry.getValue();
+            if (product.getQuantity() <= 0) {
+                // 버튼 텍스트 품절로 바꾸기
+                button.setText(product.getName() + " (품절)");
+                button.setEnabled(false);   // 버튼 비활성화하기
+                UIManager.put("Button.disabledText", Color.RED);
+                // 품절 시 ButtonDesigner의 상태 초기화
+                ButtonDesigner.setPurchasable(button, false);
+                button.setBorder(BorderFactory.createBevelBorder(
+                        BevelBorder.RAISED,
+                        Color.RED.brighter(),
+                        Color.RED.darker()
+                ));
+
+            } else {
+                button.setEnabled(true);
+                button.setText(product.getName() + "( " + product.getPrice() + "원 )");
+                // 구매 가능 여부 판단
+                boolean canBuy = currentBalance.getIsCard() || (currentBalance.getCurrentBalance() >= product.getPrice());
+
+                // ButtonDesigner에게 "이 버튼은 구매 가능하다/아니다" 상태만 전달
+                // ButtonDesigner가 알아서 테두리 색을 유지하고, 클릭 후에도 복구해줍니다.
+                ButtonDesigner.setPurchasable(button, canBuy);
+
+            }
         }
     }
 
@@ -246,7 +268,7 @@ public class VMController implements VMUIRefreshable{
         displayPanel.addMessage(resultMessage);
 
         // 재고가 0이 되면 상품 비활성화하기
-        updateProductState(product, button);
+        updateProductState();
 
         // 카드로 결제했다면 isCard를 다시 false로 바꾸기
         if(currentBalance.getIsCard()) {
@@ -264,6 +286,8 @@ public class VMController implements VMUIRefreshable{
         String resultMessage = vmProcessor.getReturnChange(currentBalance);
         displayPanel.addMessage(resultMessage);
         inputPanel.updateCurrentBalance("0원");
+
+        updateProductState();
     }
 
     private void clickNumber(AccountManager currentBalance, int num, InputPanel inputPanel, DisplayPanel displayPanel) {
@@ -274,6 +298,7 @@ public class VMController implements VMUIRefreshable{
         displayPanel.addMessage(num + "원을 투입했습니다! [총 투입금액 : " + currentMessage + "원]");
         // currentBalanceLabel 갱신하기
         inputPanel.updateCurrentBalance(currentMessage + "원");
+        updateProductState();
     }
 
     private void onOffCard(AccountManager currentBalance, DisplayPanel displayPanel){
@@ -289,6 +314,7 @@ public class VMController implements VMUIRefreshable{
             // isCard를 true 바꾸기
             currentBalance.setIsCard(true);
         }
+        updateProductState();
     }
     private void openAdminFrame(AdminController controller){
         new AdminFrame(controller, inventory, this);
