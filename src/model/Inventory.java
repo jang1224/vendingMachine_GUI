@@ -7,7 +7,7 @@ import static java.sql.DriverManager.getConnection;
 public class Inventory {
     private final String DB_URL = "jdbc:mysql://localhost:3306/vending_machine";
     private final String DB_USER = "root";  // 여기에 MySQL 사용자명
-    private final String DB_PASSWORD = "Your Password"; // 여기에 root 비밀번호
+    private final String DB_PASSWORD = "Your password"; // 여기에 root 비밀번호
     private final HashMap<String, Product> productMap = new HashMap<>();
     public Inventory(){
         loadProductsFromDB();
