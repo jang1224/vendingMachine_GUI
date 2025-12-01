@@ -192,7 +192,7 @@ public class AdminController {
         }
     }
 
-    public void handleAddAction(AdminFrame frame, ProductTable productTable){
+    private void handleAddAction(AdminFrame frame, ProductTable productTable){
         // 입력 필드 생성 및 초기값 설정
         JTextField nameField = new JTextField();
         JTextField priceField = new JTextField();
@@ -267,7 +267,7 @@ public class AdminController {
 
     }
 
-    public void addProductSQL(AdminFrame frame, Inventory inventory, String name, int price, int quantity, String imagePath){
+    private void addProductSQL(AdminFrame frame, Inventory inventory, String name, int price, int quantity, String imagePath){
         String sql = "INSERT INTO PRODUCTS (name, price, quantity, imagePath) VALUES (?, ?, ?, ?)";
         String DB_URL = inventory.getDB_URL();
         String DB_USER = inventory.getDB_USER();
@@ -293,7 +293,7 @@ public class AdminController {
         }
     }
 
-    public void handleDeleteAction(AdminFrame frame, Product productToDelete, ProductTable productTable){
+    private void handleDeleteAction(AdminFrame frame, Product productToDelete, ProductTable productTable){
         if(productToDelete == null){
             showMessage(frame,"삭제할 상품을 선택해야 합니다.", JOptionPane.WARNING_MESSAGE);
             return;
@@ -307,7 +307,7 @@ public class AdminController {
 
     }
 
-    public void deleteProductSQL(AdminFrame frame, Inventory inventory, Product productToDelete) {
+    private void deleteProductSQL(AdminFrame frame, Inventory inventory, Product productToDelete) {
         String sql = "DELETE FROM PRODUCTS WHERE name = ?";
         String DB_URL = inventory.getDB_URL();
         String DB_USER = inventory.getDB_USER();
