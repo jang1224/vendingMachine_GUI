@@ -98,7 +98,7 @@ public class AdminController {
             frame.dispose();    // Window 클래스에 정의된 메소드로, 네이비트 화면 자원 닫기 이벤트
         }
     }
-    public void handleEditAction(AdminFrame frame, Product productToEdit, ProductTable productTable){
+    private void handleEditAction(AdminFrame frame, Product productToEdit, ProductTable productTable){
         if(productToEdit == null){
             showMessage(frame, "수정할 상품을 선택해야 합니다.", JOptionPane.WARNING_MESSAGE);
             return;
