@@ -322,7 +322,10 @@ public class VMController implements VMUIRefreshable{
 
     @Override
     public void refreshUserVM(){
+        inventory.reload(); // DB 다시 읽기
+        // 상품 버튼 패널의 기조 버튼들을 모두 제거하고, DB의 최신 정보를 바탕으로 재생성
         productButtonsPanel.reloadProductButtons();
+        // 갱신 완료 알림 메시지 출력
         this.displayPanel.addMessage("자판기 목록이 갱신되었습니다.");
     }
 

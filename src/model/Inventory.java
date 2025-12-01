@@ -7,7 +7,7 @@ import static java.sql.DriverManager.getConnection;
 public class Inventory {
     private final String DB_URL = "jdbc:mysql://localhost:3306/vending_machine";
     private final String DB_USER = "root";  // 여기에 MySQL 사용자명
-    private final String DB_PASSWORD = "Your password"; // 여기에 root 비밀번호
+    private final String DB_PASSWORD = "your password"; // 여기에 root 비밀번호
     private final HashMap<String, Product> productMap = new HashMap<>();
     public Inventory(){
         loadProductsFromDB();
@@ -20,7 +20,7 @@ public class Inventory {
         try(Connection connection = getConnection(DB_URL, DB_USER, DB_PASSWORD);
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(sql)){
-
+            // ResultSet을 순회하며 DB의 레코드를 Product 객체로 변환하여 Map에 저장
             while(resultSet.next()){
                 String name = resultSet.getString("name");
                 int price = resultSet.getInt("price");
@@ -37,7 +37,7 @@ public class Inventory {
 
     public void decreaseProduct(Product product){
         int quantity = product.getQuantity() - 1;   // 수량 1감소
-        product.setQuantity(quantity);
+        product.setQuantity(quantity);  // 메모리 객체 동기화
         String sql = "UPDATE products SET quantity = ? WHERE name = ?";
 
         try (Connection connection = getConnection(DB_URL, DB_USER, DB_PASSWORD);
@@ -73,5 +73,8 @@ public class Inventory {
     public String getDB_PASSWORD(){
         return DB_PASSWORD;
     }
-
+    public void reload(){
+        productMap.clear();
+        loadProductsFromDB();
+    }
 }
